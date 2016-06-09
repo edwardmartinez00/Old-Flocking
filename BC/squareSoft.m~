@@ -1,0 +1,59 @@
+%% V_new = squareSoft(X,V,P)
+%
+% Checks points at a reflexive square boundary
+%
+% X, position vector
+% V, velocity vector
+% P.N, number of birds
+% P.L, apothem of square
+% P.d, distance that W occurs in
+%
+% BoundaryX, vector of 4 conditions for boundary of X
+% BoundaryY, vector of 4 conditions corresponding to boundary of Y
+function [X,V,BoundaryX,BoundaryY] = squareSoft(X,V,P)
+    V_functions;
+
+    for i = 1:P.N
+        % Time to cross right(left...) boundary
+        dR = (P.L-X(i,1))./V(i,1);
+        dL = (-P.L-X(i,1))./V(i,1);
+        dU = (P.L-X(i,2))./V(i,2);
+        dD = (-P.L-X(i,2))./V(i,2);
+        impactTime = [dR dL dU dD];
+    
+        % Finding boundary affecting vectors
+        M = max(impactTime);
+        impactTime(impactTime < 0) = M+1; % Set negative vectors large
+        dt_star = min(impactTime);      % Time till impact closest wall
+    
+%         % Distance from right(left...) boundary
+%         dR = (P.L-X(i,1))./V(i,1);
+%         dL = (-P.L-X(i,1))./V(i,1);
+%         dU = (P.L-X(i,2))./V(i,2);
+%         dD = (-P.L-X(i,2))./V(i,2);
+%         dist = [dR dL dU dD];
+%         
+%         % Finding closest wall to bird
+%         m = min(dist);              % Find closest wall
+%         dist = dist==m;
+%         x_hat = dist*[L,X(i,2); X(i,1), L; -L, X(i,2); X(i,1), -L]; % closest point on wall
+        
+    X_hat = zeros(size(X,1),2);
+    for i = 1:size(X,1)
+        if index(i) == 1
+            X_hat(i,:) = [L,X(i,2)];
+        elseif index == 2
+            X_hat(i,:) = [-L,X(i,2)];
+        elseif index == 3
+            X_hat(i,:) = [X(i,1),L];
+        else 
+            X_hat(i,:) = [X(i,1), -L];
+        end
+    end
+    
+    mat_dt_star = [dt_star, dt_star];
+    X_star = X + mat_dt_star.*V;                  
+    dist = X_hat - X;
+    r = norm(X - X_star);
+    dV = -W(r)*(dist/norm(dist));
+end
